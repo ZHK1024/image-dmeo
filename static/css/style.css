@@ -1,0 +1,450 @@
+/* AI 图片裁剪工具样式文件 */
+
+/* 语言切换栏样式 */
+.language-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.language-bar select {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.language-bar select:hover {
+    border-color: #3b82f6;
+}
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* 移动端允许滚动 */
+@media (max-width: 768px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+}
+
+.app-container {
+    display: flex;
+    height: calc(100vh - 72px); /* 减去顶部标题栏的高度 */
+    width: 100vw;
+    overflow: hidden;
+    margin-top: 72px; /* 给顶部标题栏留出空间 */
+}
+
+/* 移动端响应式布局 */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+    
+    /* 移动端布局顺序控制 */
+    .left-toolbar {
+        order: 1;
+    }
+    
+    .center-canvas {
+        order: 2;
+    }
+    
+    .right-ad {
+        order: 3;
+    }
+}
+
+.left-toolbar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #d9d9d9;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* 移动端左侧工具栏 */
+@media (max-width: 768px) {
+    .left-toolbar {
+        width: 100%;
+        height: auto;
+        flex-shrink: 0;
+        border-right: none;
+        border-bottom: 1px solid #d9d9d9;
+        padding: 16px;
+        overflow-y: visible;
+    }
+}
+
+.center-canvas {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fafafa;
+}
+
+/* 移动端画布区域 */
+@media (max-width: 768px) {
+    .center-canvas {
+        flex: none;
+        min-height: 50vh;
+        height: auto;
+    }
+}
+
+.canvas-header {
+    height: 64px;
+    background: white;
+    border-bottom: 1px solid #d9d9d9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+/* 移动端画布头部 */
+@media (max-width: 768px) {
+    .canvas-header {
+        height: 56px;
+        padding: 0 16px;
+        flex-wrap: wrap;
+    }
+    
+    .canvas-header > div:first-child {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .canvas-header h2 {
+        font-size: 1rem;
+    }
+    
+    .canvas-header p {
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.canvas-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+.canvas-area.drag-over {
+    background-color: rgba(24, 144, 255, 0.05);
+}
+
+.canvas-area.drag-over #emptyState {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+
+/* 移动端画布内容区域 */
+@media (max-width: 768px) {
+    .canvas-area {
+        padding: 16px;
+        min-height: 400px;
+        height: auto;
+        overflow: visible;
+    }
+}
+
+.right-ad {
+    width: 320px;
+    background: white;
+    border-left: 1px solid #d9d9d9;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* 移动端广告区域调整为底部显示 */
+@media (max-width: 768px) {
+    .right-ad {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #d9d9d9;
+        padding: 16px;
+        order: 3; /* 确保显示在最底部 */
+    }
+    
+    .right-ad h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .right-ad .ant-panel {
+        padding: 16px;
+    }
+    
+    .right-ad .ant-panel h4 {
+        font-size: 0.9rem;
+    }
+    
+    .right-ad .ant-panel p {
+        font-size: 0.8rem;
+    }
+    
+    /* 移动端广告位尺寸调整 */
+    .right-ad .ant-panel .mt-4 {
+        height: 200px;
+        margin-top: 12px;
+    }
+}
+
+/* 基础容器样式 */
+.ant-panel {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+/* 按钮样式 */
+.ant-btn-primary {
+    background: #1890ff;
+    border: 1px solid #1890ff;
+    color: #fff;
+    transition: all 0.3s;
+}
+
+.ant-btn-primary:hover:not(:disabled) {
+    background: #40a9ff;
+    border-color: #40a9ff;
+}
+
+.ant-btn-primary:disabled {
+    background: #f5f5f5;
+    border-color: #d9d9d9;
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-btn-default {
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    color: rgba(0, 0, 0, 0.65);
+    transition: all 0.3s;
+}
+
+.ant-btn-default:hover:not(:disabled) {
+    border-color: #40a9ff;
+    color: #40a9ff;
+}
+
+/* 输入框样式 */
+.ant-input {
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    color: rgba(0, 0, 0, 0.65);
+    transition: all 0.3s;
+}
+
+.ant-input:focus {
+    border-color: #40a9ff;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 模式按钮样式 */
+.mode-btn {
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    color: rgba(0, 0, 0, 0.65);
+    transition: all 0.3s;
+}
+
+.mode-btn.active {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #fff;
+}
+
+.mode-btn:hover:not(.active) {
+    border-color: #40a9ff;
+    color: #40a9ff;
+}
+
+/* 工具栏按钮 */
+.toolbar-btn {
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    color: rgba(0, 0, 0, 0.65);
+    transition: all 0.3s;
+}
+
+.toolbar-btn:hover:not(:disabled) {
+    border-color: #40a9ff;
+    color: #40a9ff;
+}
+
+.toolbar-btn:disabled {
+    background: #f5f5f5;
+    border-color: #d9d9d9;
+    color: rgba(0, 0, 0, 0.25);
+}
+
+/* 移动端触摸友好按钮 */
+@media (max-width: 768px) {
+    .ant-btn-primary,
+    .ant-btn-default,
+    .mode-btn,
+    .toolbar-btn {
+        min-height: 44px;
+        padding: 12px 16px;
+    }
+    
+    .toolbar-btn {
+        min-width: 44px;
+    }
+}
+
+/* 裁剪区域样式 */
+.crop-area {
+    border: 2px solid #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+    position: absolute;
+    cursor: move;
+}
+
+.drag-handle {
+    position: absolute;
+    background: #1890ff;
+    border: 1px solid #fff;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.drag-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+.drag-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+.drag-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+.drag-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+.drag-handle.n { top: -4px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+.drag-handle.s { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+.drag-handle.w { top: 50%; left: -4px; transform: translateY(-50%); cursor: w-resize; }
+.drag-handle.e { top: 50%; right: -4px; transform: translateY(-50%); cursor: e-resize; }
+
+/* 网格覆盖层样式 */
+.grid-overlay {
+    background-image: 
+        linear-gradient(to right, #1890ff 1px, transparent 1px),
+        linear-gradient(to bottom, #1890ff 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* 移动端裁剪区域优化 */
+@media (max-width: 768px) {
+    .drag-handle {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .drag-handle.nw { top: -6px; left: -6px; }
+    .drag-handle.ne { top: -6px; right: -6px; }
+    .drag-handle.sw { bottom: -6px; left: -6px; }
+    .drag-handle.se { bottom: -6px; right: -6px; }
+    .drag-handle.n { top: -6px; }
+    .drag-handle.s { bottom: -6px; }
+    .drag-handle.w { left: -6px; }
+    .drag-handle.e { right: -6px; }
+}
+
+/* 图片容器样式 */
+#imageContainer {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#imageCanvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+/* 移动端图片容器优化 */
+@media (max-width: 768px) {
+    #imageContainer {
+        width: 100%;
+        height: 100%;
+    }
+    
+    #imageCanvas {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* 模态框移动端优化 */
+@media (max-width: 768px) {
+    .ant-panel {
+        margin: 16px;
+        max-width: calc(100vw - 32px);
+    }
+}
+
+/* 移动端全局优化 */
+@media (max-width: 768px) {
+    html {
+        overflow-x: hidden;
+    }
+    
+    body {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+    
+    /* 确保容器在移动端正确堆叠 */
+    .app-container > * {
+        flex-shrink: 0;
+    }
+    
+    /* 移动端确保内容不会被截断 */
+    #canvasContainer {
+        min-height: 300px;
+        height: auto;
+    }
+    
+    /* 移动端模态框优化 */
+    #urlModal .ant-panel {
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    /* 移动端加载动画优化 */
+    #loadingOverlay .ant-panel {
+        position: relative;
+        max-width: 90vw;
+    }
+}

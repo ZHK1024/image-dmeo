@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线图片裁剪工具 | 智能裁剪，一键分割</title>
+    <meta name="description" content="专业的在线图片裁剪工具，支持自由裁剪和智能网格分割，高质量图片处理体验">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="static/js/tailwind.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="static/css/inter-font.css">
+    
+    <!-- 外部CSS文件 -->
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部标题和语言切换栏 -->
+    <div class="language-bar bg-white border-b border-gray-200 px-4 py-2">
+        <div class="flex justify-between items-center">
+            <!-- 左侧标题 -->
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">在线图片裁剪工具</h1>
+                <p class="text-gray-600 text-sm">快速裁剪，精准分割</p>
+            </div>
+            
+            <!-- 右侧语言切换 -->
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">语言:</span>
+                <select id="languageSelect" class="text-sm border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="zh-CN" selected>中文简体</option>
+                    <option value="zh-TW">中文繁體</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全屏主容器 -->
+    <div class="app-container">
+        <!-- 左侧工具栏 -->
+        <div class="left-toolbar">
+            <!-- 工具内容区域 -->
+            <div class="flex-1 overflow-y-auto space-y-6">
+                <!-- 裁剪模式 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">裁剪模式</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button id="freeCropBtn" class="mode-btn active px-4 py-3 font-medium text-left">
+                            自由裁剪
+                        </button>
+                        <button id="gridCropBtn" class="mode-btn px-4 py-3 font-medium text-left">
+                            网格裁剪
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 网格设置 -->
+                <div id="gridSettings" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">网格设置</label>
+                    <div class="ant-panel p-4 space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-medium text-gray-600 block mb-2">行数</label>
+                                <input type="number" id="gridRows" value="2" min="1" max="10" class="ant-input w-full px-3 py-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-600 block mb-2">列数</label>
+                                <input type="number" id="gridCols" value="2" min="1" max="10" class="ant-input w-full px-3 py-2 text-sm">
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xs text-gray-500">总计: <span id="gridTotal" class="text-blue-600 font-medium">4</span> 个区块</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- URL加载 -->
+                <div>
+                    <button id="urlLoadBtn" class="ant-btn-default w-full px-4 py-3 font-medium">
+                        从URL加载图片
+                    </button>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="space-y-3">
+                    <button id="downloadBtn" class="ant-btn-primary w-full px-4 py-3 font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        下载图片
+                    </button>
+                </div>
+
+                <!-- 左侧广告位 -->
+                <div class="mt-6">
+                    <div class="ant-panel p-4 text-center">
+                        <!-- <div class="w-12 h-12 bg-green-50 mx-auto mb-3 flex items-center justify-center">
+                            <img src="static/images/gift.svg" alt="广告" class="w-6 h-6 text-green-500">
+                        </div>
+                        <h4 class="text-sm font-medium text-gray-800 mb-2">推荐工具</h4>
+                        <p class="text-xs text-gray-600 mb-3">发现更多实用工具</p> -->
+                        <!-- 这里可以放置AdSense代码或其他广告 -->
+                        <!-- <div class="h-24 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                            280x90 广告位
+                        </div> -->
+                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737189245877678"
+                            crossorigin="anonymous"></script>
+                        <!-- 图片裁剪-00 -->
+                        <ins class="adsbygoogle"
+                            style="display:block"
+                            data-ad-client="ca-pub-3737189245877678"
+                            data-ad-slot="2073124792"
+                            data-ad-format="auto"
+                            data-full-width-responsive="true"></ins>
+                        <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中间画布区域 -->
+        <div class="center-canvas">
+            <!-- 画布头部工具栏 -->
+            <div class="canvas-header">
+                <div>
+                    <h2 class="text-lg font-medium text-gray-800">画布区域</h2>
+                    <p class="text-sm text-gray-600" id="imageInfo">请上传图片开始裁剪</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="resetBtn" class="toolbar-btn p-2 disabled:opacity-50" disabled title="重置">
+                        <img src="static/images/refresh-cw.svg" alt="重置" class="w-4 h-4">
+                    </button>
+                    <button id="zoomOutBtn" class="toolbar-btn p-2 disabled:opacity-50" disabled title="缩小">
+                        <img src="static/images/zoom-out.svg" alt="缩小" class="w-4 h-4">
+                    </button>
+                    <button id="zoomInBtn" class="toolbar-btn p-2 disabled:opacity-50" disabled title="放大">
+                        <img src="static/images/zoom-in.svg" alt="放大" class="w-4 h-4">
+                    </button>
+                    <button id="fitBtn" class="toolbar-btn p-2 disabled:opacity-50" disabled title="适应画布">
+                        <img src="static/images/maximize.svg" alt="适应" class="w-4 h-4">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 画布内容 -->
+            <div class="canvas-area" id="dropZone">
+                <div id="canvasContainer" class="w-full h-full flex items-center justify-center">
+                    <!-- 空状态 -->
+                    <div id="emptyState" class="text-center">
+                        <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 flex items-center justify-center">
+                            <img src="static/images/image.svg" alt="图片" class="w-12 h-12 text-gray-400">
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">开始您的创作</h3>
+                        <p class="text-gray-600 mb-4">拖拽图片到此处或点击上传</p>
+                        <button class="upload-trigger ant-btn-primary px-6 py-3 font-medium">
+                            上传图片
+                        </button>
+                    </div>
+
+                    <!-- 图片画布 -->
+                    <div id="imageContainer" class="relative hidden">
+                        <canvas id="imageCanvas" class="max-w-full max-h-full"></canvas>
+                        
+                        <!-- 裁剪覆盖层 -->
+                        <div id="cropOverlay" class="absolute inset-0 hidden">
+                            <!-- 自由裁剪框 -->
+                            <div id="freeCropBox" class="absolute crop-area hidden">
+                                <div class="drag-handle nw"></div>
+                                <div class="drag-handle ne"></div>
+                                <div class="drag-handle sw"></div>
+                                <div class="drag-handle se"></div>
+                                <div class="drag-handle n"></div>
+                                <div class="drag-handle s"></div>
+                                <div class="drag-handle w"></div>
+                                <div class="drag-handle e"></div>
+                            </div>
+                            
+                            <!-- 网格覆盖层 -->
+                            <div id="gridOverlay" class="absolute inset-0 grid-overlay hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧广告区域 -->
+        <div class="right-ad">
+            
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737189245877678"
+                crossorigin="anonymous"></script>
+            <!-- 图片裁剪-01 -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-3737189245877678"
+                data-ad-slot="4350436794"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入框 -->
+    <input type="file" id="imageInput" accept="image/*" class="hidden">
+
+    <!-- URL 输入模态框 -->
+    <div id="urlModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="ant-panel max-w-lg w-full mx-6 p-8">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-50 mx-auto mb-4 flex items-center justify-center">
+                    <img src="static/images/link.svg" alt="链接" class="w-8 h-8 text-blue-500">
+                </div>
+                <h3 class="text-xl font-medium text-gray-800 mb-2">从 URL 加载图片</h3>
+                <p class="text-gray-600 text-sm">输入图片链接地址，支持各种图片格式</p>
+            </div>
+            <input type="url" id="imageUrlInput" placeholder="请输入图片URL地址..." class="ant-input w-full px-4 py-3 mb-6">
+            <div class="flex space-x-3">
+                <button id="urlConfirmBtn" class="ant-btn-primary flex-1 px-6 py-3 font-medium">
+                    加载图片
+                </button>
+                <button id="urlCancelBtn" class="ant-btn-default flex-1 px-6 py-3 font-medium">
+                    取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="ant-panel p-8 text-center">
+            <div class="w-16 h-16 border-4 border-gray-200 border-t-blue-500 animate-spin mx-auto mb-4"></div>
+            <h4 class="text-gray-800 font-medium text-lg mb-2">正在处理图片</h4>
+            <p class="text-gray-600">请稍候，正在为您优化图片质量...</p>
+        </div>
+    </div>
+
+    <!-- 外部JavaScript文件 -->
+    <script src="static/js/app.js"></script>
+</body>
+</html>
