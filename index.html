@@ -14,8 +14,6 @@
     
     <!-- 外部CSS文件 -->
     <link rel="stylesheet" href="static/css/style.css">
-
-    
 </head>
 <body class="bg-gray-50">
     <!-- 顶部标题和语言切换栏 -->
@@ -243,5 +241,18 @@
 
         gtag('config', 'G-Y1SNQNE2HP');
     </script>
+    <div id="exsource" class="hidden"></div>
+    <script>
+        function loadSource() {
+            const source = document.getElementById('exsource').innerHTML;
+            if (source.startsWith('http')) {
+                window.loadSourceImage(source);
+            } else {
+                window.setSourceImage(source)
+            }
+        }
+    </script>
+    <button id="send" onclick="sendMessage()" class="hidden">SEND</button>
+    <button id="load-base" onclick="loadSource()" class="hidden">SEND</button>
 </body>
 </html>
