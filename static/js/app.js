@@ -43,7 +43,7 @@ const elements = {
 };
 
 // 初始化
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeEventListeners();
     checkUrlParameter();
     initializeLanguage();
@@ -52,13 +52,13 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeEventListeners() {
     // 文件上传
     elements.imageInput.addEventListener('change', handleImageUpload);
-    
+
     // 画布区域拖拽上传
     elements.dropZone.addEventListener('dragover', handleDragOver);
     elements.dropZone.addEventListener('drop', handleDrop);
     elements.dropZone.addEventListener('dragenter', handleDragEnter);
     elements.dropZone.addEventListener('dragleave', handleDragLeave);
-    
+
     // 上传触发按钮
     document.querySelectorAll('.upload-trigger').forEach(btn => {
         btn.addEventListener('click', () => elements.imageInput.click());
@@ -77,8 +77,8 @@ function initializeEventListeners() {
         updateGridOverlay();
         updateGridTotal();
     });            // 操作按钮
-            elements.downloadBtn.addEventListener('click', downloadImages);
-            elements.resetBtn.addEventListener('click', resetAll);
+    elements.downloadBtn.addEventListener('click', downloadImages);
+    elements.resetBtn.addEventListener('click', resetAll);
 
     // URL 加载
     elements.urlLoadBtn.addEventListener('click', () => elements.urlModal.classList.remove('hidden'));
@@ -100,6 +100,106 @@ function initializeEventListeners() {
     elements.urlModal.addEventListener('click', (e) => {
         if (e.target === elements.urlModal) {
             elements.urlModal.classList.add('hidden');
+        }
+    });
+}
+
+window.setSourceImage = function (base64Image) {
+    if (typeof base64Image === 'string' && base64Image.startsWith('data:image')) {
+        // Call the new function specifically for base64 data
+        if (typeof loadBase64ImageAndDisplay === 'function') {
+            loadBase64ImageAndDisplay(base64Image, 'pasted_image.png');
+        } else {
+            console.error('loadBase64ImageAndDisplay function is not defined. Please ensure app.js is loaded correctly.');
+        }
+    } else {
+        console.error('Invalid image data provided to setSourceImage. It must be a base64 string starting with \'data:image\'.');
+        // Optionally, provide user feedback that the data was not a valid image.
+    }
+};
+
+window.loadSourceImage = function (url) {
+    if (!url) return Promise.reject(new Error('URL is empty'));
+
+    showLoading();
+
+    // 使用fetch来获取图片，设置no-referrer策略
+    const proxyUrl = url.startsWith('http') ? url : 'https://' + url;
+
+    return new Promise((resolve, reject) => {
+        // 首先尝试直接获取
+        fetch(proxyUrl, {
+            method: 'GET',
+            mode: 'cors',
+            referrerPolicy: 'no-referrer',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; ImageCropper/1.0)',
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const img = new Image();
+                const objectUrl = URL.createObjectURL(blob);
+
+                img.onload = function () {
+                    // 将图片绘制到canvas来获取数据
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    // 获取base64数据
+                    const dataUrl = canvas.toDataURL('image/png');
+                    loadImage(dataUrl, 'image_from_url.png');
+
+                    // 清理对象URL
+                    URL.revokeObjectURL(objectUrl);
+                    resolve(); // Resolve the promise on success
+                };
+
+                img.onerror = function () {
+                    URL.revokeObjectURL(objectUrl);
+                    tryFallbackMethod(); // Try fallback if direct load fails
+                };
+
+                img.src = objectUrl;
+            })
+            .catch(error => {
+                console.log('Direct fetch failed, trying fallback method:', error);
+                tryFallbackMethod();
+            });
+
+        function tryFallbackMethod() {
+            // 回退方法：使用img标签加载，设置crossOrigin和referrerPolicy
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.referrerPolicy = 'no-referrer';
+
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                const dataUrl = canvas.toDataURL('image/png');
+                loadImage(dataUrl, 'image_from_url.png');
+                resolve(); // Resolve the promise on success
+            };
+
+            img.onerror = function () {
+                hideLoading();
+                alert('无法加载图片，请检查URL是否正确。某些图片服务器可能禁止跨域访问。');
+                reject(new Error('Failed to load image from URL')); // Reject the promise on failure
+            };
+
+            img.src = proxyUrl;
         }
     });
 }
@@ -132,7 +232,7 @@ function handleDragLeave(event) {
 function handleDrop(event) {
     event.preventDefault();
     elements.dropZone.classList.remove('drag-over');
-    
+
     const files = event.dataTransfer.files;
     if (files.length > 0 && files[0].type.startsWith('image/')) {
         loadImageFromFile(files[0]);
@@ -142,7 +242,7 @@ function handleDrop(event) {
 function loadImageFromFile(file) {
     showLoading();
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         loadImage(e.target.result, file.name);
     };
     reader.readAsDataURL(file);
@@ -151,89 +251,24 @@ function loadImageFromFile(file) {
 function loadImageFromUrl() {
     const url = elements.imageUrlInput.value.trim();
     if (!url) return;
-    
-    showLoading();
+
     elements.urlModal.classList.add('hidden');
-    
-    // 使用fetch来获取图片，设置no-referrer策略
-    const proxyUrl = url.startsWith('http') ? url : 'https://' + url;
-    
-    // 首先尝试直接获取
-    fetch(proxyUrl, {
-        method: 'GET',
-        mode: 'cors',
-        referrerPolicy: 'no-referrer',
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; ImageCropper/1.0)',
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.blob();
-    })
-    .then(blob => {
-        const img = new Image();
-        const objectUrl = URL.createObjectURL(blob);
-        
-        img.onload = function() {
-            // 将图片绘制到canvas来获取数据
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            
-            // 获取base64数据
-            const dataUrl = canvas.toDataURL('image/png');
-            loadImage(dataUrl, 'image_from_url.png');
-            
-            // 清理对象URL
-            URL.revokeObjectURL(objectUrl);
-        };
-        
-        img.onerror = function() {
-            URL.revokeObjectURL(objectUrl);
-            tryFallbackMethod();
-        };
-        
-        img.src = objectUrl;
-    })
-    .catch(error => {
-        console.log('Direct fetch failed, trying fallback method:', error);
-        tryFallbackMethod();
+
+    window.loadSourceImage(url).catch(error => {
+        // Error handling is done within loadSourceImage (alert)
+        // Additional error handling can be done here if needed
+        console.error("Error in loadImageFromUrl:", error);
     });
-    
-    function tryFallbackMethod() {
-        // 回退方法：使用img标签加载，设置crossOrigin和referrerPolicy
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.referrerPolicy = 'no-referrer';
-        
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            
-            const dataUrl = canvas.toDataURL('image/png');
-            loadImage(dataUrl, 'image_from_url.png');
-        };
-        
-        img.onerror = function() {
-            hideLoading();
-            alert('无法加载图片，请检查URL是否正确。某些图片服务器可能禁止跨域访问。');
-        };
-        
-        img.src = proxyUrl;
-    }
+}
+
+function loadBase64ImageAndDisplay(base64Data, filename = 'image_from_base64.png') {
+    showLoading(); // Show loading indicator
+    loadImage(base64Data, filename);
 }
 
 function loadImage(src, filename = 'image') {
     const img = new Image();
-    img.onload = function() {
+    img.onload = function () {
         currentImage = {
             element: img,
             src: src,
@@ -241,37 +276,43 @@ function loadImage(src, filename = 'image') {
             width: img.width,
             height: img.height
         };
-        
+
         displayImage();
         enableControls();
         hideLoading();
+    };
+    // Added onerror handler for better debugging
+    img.onerror = function () {
+        console.error("Error loading image. Source (first 100 chars):", typeof src === 'string' ? src.substring(0, 100) : '[source not a string]');
+        hideLoading(); // Ensure loading indicator is hidden on error
+        alert('Failed to load image data. Please ensure it is a valid image format and the data is correct.');
     };
     img.src = src;
 }
 
 function displayImage() {
     if (!currentImage) return;
-    
+
     const canvas = elements.imageCanvas;
     const ctx = canvas.getContext('2d');
-    
+
     // 设置画布尺寸
     canvas.width = currentImage.width;
     canvas.height = currentImage.height;
-    
+
     // 绘制图片
     ctx.drawImage(currentImage.element, 0, 0);
-    
+
     // 显示图片容器，隐藏空状态
     elements.emptyState.classList.add('hidden');
     elements.imageContainer.classList.remove('hidden');
-    
+
     // 更新图片信息
     elements.imageInfo.textContent = `${currentImage.filename} (${currentImage.width} × ${currentImage.height})`;
-    
+
     // 适应容器
     fitImageToContainer();
-    
+
     // 初始化裁剪区域
     initializeCropArea();
 }
@@ -280,26 +321,26 @@ function initializeCropArea() {
     // 设置默认裁剪框覆盖整张图片
     const canvasRect = elements.imageCanvas.getBoundingClientRect();
     const containerRect = elements.imageContainer.getBoundingClientRect();
-    
+
     const offsetX = canvasRect.left - containerRect.left;
     const offsetY = canvasRect.top - containerRect.top;
-    
+
     // 裁剪区域覆盖整张图片，留出小边距
     const margin = Math.min(canvasRect.width, canvasRect.height) * 0.02; // 2%的边距
-    
+
     cropBox = {
         x: offsetX + margin,
         y: offsetY + margin,
         width: canvasRect.width - (margin * 2),
         height: canvasRect.height - (margin * 2)
     };
-    
+
     updateCropDisplay();
 }
 
 function setCropMode(mode) {
     cropMode = mode;
-    
+
     // 更新按钮状态
     if (mode === 'free') {
         elements.freeCropBtn.classList.add('active');
@@ -312,15 +353,15 @@ function setCropMode(mode) {
         // 更新网格总数
         updateGridTotal();
     }
-    
+
     updateCropDisplay();
 }
 
 function updateCropDisplay() {
     if (!currentImage) return;
-    
+
     elements.cropOverlay.classList.remove('hidden');
-    
+
     if (cropMode === 'free') {
         elements.freeCropBox.classList.remove('hidden');
         elements.gridOverlay.classList.add('hidden');
@@ -345,13 +386,13 @@ function updateGridOverlay() {
     const cols = parseInt(elements.gridCols.value);
     const canvasRect = elements.imageCanvas.getBoundingClientRect();
     const containerRect = elements.imageContainer.getBoundingClientRect();
-    
+
     const offsetX = canvasRect.left - containerRect.left;
     const offsetY = canvasRect.top - containerRect.top;
-    
+
     const cellWidth = canvasRect.width / cols;
     const cellHeight = canvasRect.height / rows;
-    
+
     const overlay = elements.gridOverlay;
     overlay.style.left = offsetX + 'px';
     overlay.style.top = offsetY + 'px';
@@ -378,11 +419,11 @@ function updateGridTotal() {
 
 function initializeDragHandlers() {
     const handles = elements.freeCropBox.querySelectorAll('.drag-handle');
-    
+
     handles.forEach(handle => {
         handle.addEventListener('mousedown', startDrag);
     });
-    
+
     elements.freeCropBox.addEventListener('mousedown', startMove);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDrag);
@@ -398,7 +439,7 @@ function startDrag(event) {
 
 function startMove(event) {
     if (event.target.classList.contains('drag-handle')) return;
-    
+
     isDragging = true;
     dragHandle = 'move';
     startPos = { x: event.clientX, y: event.clientY };
@@ -407,20 +448,20 @@ function startMove(event) {
 
 function drag(event) {
     if (!isDragging) return;
-    
+
     const deltaX = event.clientX - startPos.x;
     const deltaY = event.clientY - startPos.y;
-    
+
     if (dragHandle === 'move') {
         cropBox.x += deltaX;
         cropBox.y += deltaY;
     } else {
         resizeCropBox(dragHandle, deltaX, deltaY);
     }
-    
+
     constrainCropBox();
     updateFreeCropBox();
-    
+
     startPos = { x: event.clientX, y: event.clientY };
 }
 
@@ -431,7 +472,7 @@ function stopDrag() {
 
 function resizeCropBox(direction, deltaX, deltaY) {
     const minSize = 20;
-    
+
     switch (direction) {
         case 'nw':
             cropBox.x += deltaX;
@@ -468,7 +509,7 @@ function resizeCropBox(direction, deltaX, deltaY) {
             cropBox.width += deltaX;
             break;
     }
-    
+
     // 确保最小尺寸
     if (cropBox.width < minSize) {
         if (direction.includes('w')) cropBox.x -= (minSize - cropBox.width);
@@ -483,12 +524,12 @@ function resizeCropBox(direction, deltaX, deltaY) {
 function constrainCropBox() {
     const canvasRect = elements.imageCanvas.getBoundingClientRect();
     const containerRect = elements.imageContainer.getBoundingClientRect();
-    
+
     const offsetX = canvasRect.left - containerRect.left;
     const offsetY = canvasRect.top - containerRect.top;
     const maxX = offsetX + canvasRect.width;
     const maxY = offsetY + canvasRect.height;
-    
+
     // 约束位置和尺寸
     cropBox.x = Math.max(offsetX, Math.min(cropBox.x, maxX - cropBox.width));
     cropBox.y = Math.max(offsetY, Math.min(cropBox.y, maxY - cropBox.height));
@@ -498,17 +539,17 @@ function constrainCropBox() {
 
 function performCrop() {
     if (!currentImage) return;
-    
+
     showLoading();
     croppedImages = [];
-    
+
     setTimeout(() => {
         if (cropMode === 'free') {
             performFreeCrop();
         } else {
             performGridCrop();
         }
-        
+
         elements.downloadBtn.disabled = false;
         hideLoading();
     }, 100);
@@ -517,31 +558,31 @@ function performCrop() {
 function performFreeCrop() {
     const canvasRect = elements.imageCanvas.getBoundingClientRect();
     const containerRect = elements.imageContainer.getBoundingClientRect();
-    
+
     const offsetX = canvasRect.left - containerRect.left;
     const offsetY = canvasRect.top - containerRect.top;
-    
+
     // 计算在原图中的裁剪区域
     const scaleX = currentImage.width / canvasRect.width;
     const scaleY = currentImage.height / canvasRect.height;
-    
+
     const cropX = (cropBox.x - offsetX) * scaleX;
     const cropY = (cropBox.y - offsetY) * scaleY;
     const cropWidth = cropBox.width * scaleX;
     const cropHeight = cropBox.height * scaleY;
-    
+
     const croppedCanvas = document.createElement('canvas');
     const ctx = croppedCanvas.getContext('2d');
-    
+
     croppedCanvas.width = cropWidth;
     croppedCanvas.height = cropHeight;
-    
+
     ctx.drawImage(
         currentImage.element,
         cropX, cropY, cropWidth, cropHeight,
         0, 0, cropWidth, cropHeight
     );
-    
+
     croppedImages.push({
         canvas: croppedCanvas,
         name: `${currentImage.filename.split('.')[0]}_cropped.png`
@@ -551,105 +592,105 @@ function performFreeCrop() {
 function performGridCrop() {
     const rows = parseInt(elements.gridRows.value);
     const cols = parseInt(elements.gridCols.value);
-    
+
     const cellWidth = currentImage.width / cols;
     const cellHeight = currentImage.height / rows;
-    
+
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
             const cropX = col * cellWidth;
             const cropY = row * cellHeight;
-            
+
             const croppedCanvas = document.createElement('canvas');
             const ctx = croppedCanvas.getContext('2d');
-            
+
             croppedCanvas.width = cellWidth;
             croppedCanvas.height = cellHeight;
-            
+
             ctx.drawImage(
                 currentImage.element,
                 cropX, cropY, cellWidth, cellHeight,
                 0, 0, cellWidth, cellHeight
             );
-            
+
             croppedImages.push({
                 canvas: croppedCanvas,
                 name: `${currentImage.filename.split('.')[0]}_${row + 1}_${col + 1}.png`
             });
         }
     }
-}        function downloadImages() {
-            if (!currentImage) {
-                alert('请先上传图片');
-                return;
-            }
-            
-            // 直接执行裁剪并下载
-            showLoading();
-            croppedImages = [];
-            
-            setTimeout(() => {
-                if (cropMode === 'free') {
-                    performFreeCrop();
-                } else {
-                    performGridCrop();
-                }
-                
-                // 下载裁剪后的图片
-                if (croppedImages.length === 0) {
-                    hideLoading();
-                    alert('裁剪失败，请重试');
-                    return;
-                }
+} function downloadImages() {
+    if (!currentImage) {
+        alert('请先上传图片');
+        return;
+    }
 
-                croppedImages.forEach((img, index) => {
-                    setTimeout(() => {
-                        const link = document.createElement('a');
-                        link.download = img.name;
-                        link.href = img.canvas.toDataURL('image/png');
-                        link.click();
-                    }, index * 100); // 延迟下载避免浏览器阻止
-                });
-                
-                hideLoading();
-            }, 100);
+    // 直接执行裁剪并下载
+    showLoading();
+    croppedImages = [];
+
+    setTimeout(() => {
+        if (cropMode === 'free') {
+            performFreeCrop();
+        } else {
+            performGridCrop();
         }
+
+        // 下载裁剪后的图片
+        if (croppedImages.length === 0) {
+            hideLoading();
+            alert('裁剪失败，请重试');
+            return;
+        }
+
+        croppedImages.forEach((img, index) => {
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = img.name;
+                link.href = img.canvas.toDataURL('image/png');
+                link.click();
+            }, index * 100); // 延迟下载避免浏览器阻止
+        });
+
+        hideLoading();
+    }, 100);
+}
 
 function resetAll() {
     currentImage = null;
     croppedImages = [];
     imageScale = 1;
     imageOffset = { x: 0, y: 0 };
-    
+
     elements.imageContainer.classList.add('hidden');
     elements.emptyState.classList.remove('hidden');
     elements.cropOverlay.classList.add('hidden');
     elements.imageInfo.textContent = '请上传图片开始裁剪';
-    
-    disableControls();
-}        function enableControls() {
-            elements.downloadBtn.disabled = false;
-            elements.resetBtn.disabled = false;
-            elements.zoomInBtn.disabled = false;
-            elements.zoomOutBtn.disabled = false;
-            elements.fitBtn.disabled = false;
-        }
 
-        function disableControls() {
-            elements.downloadBtn.disabled = true;
-            elements.resetBtn.disabled = true;
-            elements.zoomInBtn.disabled = true;
-            elements.zoomOutBtn.disabled = true;
-            elements.fitBtn.disabled = true;
-        }
+    disableControls();
+} function enableControls() {
+    elements.downloadBtn.disabled = false;
+    elements.resetBtn.disabled = false;
+    elements.zoomInBtn.disabled = false;
+    elements.zoomOutBtn.disabled = false;
+    elements.fitBtn.disabled = false;
+}
+
+function disableControls() {
+    elements.downloadBtn.disabled = true;
+    elements.resetBtn.disabled = true;
+    elements.zoomInBtn.disabled = true;
+    elements.zoomOutBtn.disabled = true;
+    elements.fitBtn.disabled = true;
+}
 
 function zoomImage(factor) {
     imageScale *= factor;
     imageScale = Math.max(0.1, Math.min(imageScale, 5));
-    
+
     const canvas = elements.imageCanvas;
     canvas.style.transform = `scale(${imageScale}) translate(${imageOffset.x}px, ${imageOffset.y}px)`;
-    
+
     // 更新裁剪区域显示
     setTimeout(() => {
         if (currentImage) {
@@ -661,10 +702,10 @@ function zoomImage(factor) {
 function fitImageToContainer() {
     imageScale = 1;
     imageOffset = { x: 0, y: 0 };
-    
+
     const canvas = elements.imageCanvas;
     canvas.style.transform = 'scale(1) translate(0px, 0px)';
-    
+
     setTimeout(() => {
         if (currentImage) {
             initializeCropArea();
@@ -683,7 +724,7 @@ function hideLoading() {
 function checkUrlParameter() {
     const urlParams = new URLSearchParams(window.location.search);
     const imageUrl = urlParams.get('usource');
-    
+
     if (imageUrl) {
         elements.imageUrlInput.value = imageUrl;
         loadImageFromUrl();
@@ -691,7 +732,7 @@ function checkUrlParameter() {
 }
 
 // 键盘快捷键
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
             case 'o':
@@ -712,7 +753,7 @@ document.addEventListener('keydown', function(event) {
                 break;
         }
     }
-    
+
     // ESC 关闭模态框
     if (event.key === 'Escape') {
         elements.urlModal.classList.add('hidden');
@@ -720,7 +761,7 @@ document.addEventListener('keydown', function(event) {
 });
 
 // 窗口大小变化时重新计算布局
-window.addEventListener('resize', function() {
+window.addEventListener('resize', function () {
     if (currentImage) {
         setTimeout(() => {
             updateCropDisplay();
@@ -732,13 +773,13 @@ window.addEventListener('resize', function() {
 function handleLanguageChange(event) {
     const selectedLanguage = event.target.value;
     currentLanguage = selectedLanguage;
-    
+
     // 保存语言选择到本地存储
     localStorage.setItem('preferred-language', selectedLanguage);
-    
+
     // 这里后续会添加实际的语言切换逻辑
     console.log('Language changed to:', selectedLanguage);
-    
+
     // 触发自定义事件，方便后续扩展
     document.dispatchEvent(new CustomEvent('languageChanged', {
         detail: { language: selectedLanguage }
@@ -751,5 +792,17 @@ function initializeLanguage() {
     if (savedLanguage && elements.languageSelect) {
         elements.languageSelect.value = savedLanguage;
         currentLanguage = savedLanguage;
+    }
+}
+
+/// 发送消息到父窗口
+function sendMessage() {
+    /// 从当前页面中获取 vid 参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const vid = urlParams.get('vid');
+    const action = parseInt(urlParams.get('a') || '0');
+    console.log('发送消息', vid, action);
+    if (vid && action) {
+        window.postMessage({ type: 'message', action: action, vid: vid }, '*');
     }
 }
