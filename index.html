@@ -257,5 +257,23 @@
     </script>
     <button id="send" onclick="sendMessage()" class="hidden">SEND</button>
     <button id="load-base" onclick="loadSource()" class="hidden">SEND</button>
+
+    <script>
+        function checkPadding() {
+            const bottom = document.body.style.paddingBottom;
+            if (bottom !== '0px') {
+                document.body.style.paddingBottom = '0px';
+                console.log("发生变化, 重置");
+                
+            }
+        }
+        checkPadding();
+        /// 监听 body padding 变化
+        const observer = new MutationObserver(checkPadding);
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    </script>
 </body>
 </html>
