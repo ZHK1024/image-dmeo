@@ -199,6 +199,208 @@
         </div>
     </div>
 
+    <!-- SEO 描述内容区域 -->
+    <section id="seo-content">
+
+        <!-- 工具简介 -->
+        <div class="seo-section">
+            <span class="seo-eyebrow">关于本工具</span>
+            <h2>在线图片裁剪工具 — 自由裁剪与网格分割，一站搞定</h2>
+            <p class="seo-lead">
+                免费、无需注册，直接在浏览器中完成图片裁剪。支持<strong>自由裁剪</strong>与<strong>网格裁剪</strong>两种模式，所有操作均在本地运行，图片数据不会上传至服务器。无论是调整社交头像、制作九宫格，还是精准截取局部区域，都能一键完成。
+            </p>
+            <p class="seo-lead" style="margin-top: 0.25rem;">
+                支持 JPG、PNG、WebP 等主流格式，导出时保留原始画质。
+            </p>
+        </div>
+
+        <!-- 核心功能 -->
+        <div class="seo-section">
+            <span class="seo-eyebrow">核心功能</span>
+            <h2>两种裁剪模式，满足不同需求</h2>
+            <div class="seo-grid">
+                <div class="seo-card">
+                    <span class="seo-card-icon">✂️</span>
+                    <h3>自由裁剪</h3>
+                    <p>拖拽裁剪框的四角与边缘，自由调整裁剪区域的大小和位置，灵活截取图片任意部分。</p>
+                    <ul>
+                        <li>可视化拖拽，精准定位</li>
+                        <li>支持任意宽高比例</li>
+                        <li>实时预览裁剪范围</li>
+                        <li>一键导出高质量裁剪图</li>
+                    </ul>
+                </div>
+                <div class="seo-card">
+                    <span class="seo-card-icon">▦</span>
+                    <h3>网格裁剪</h3>
+                    <p>按自定义行列数均匀分割图片，自动批量导出所有子图，轻松制作九宫格、多图轮播等内容。</p>
+                    <ul>
+                        <li>自定义行列数（最大 10×10）</li>
+                        <li>均匀等分，像素对齐</li>
+                        <li>批量下载全部子图</li>
+                        <li>适合社交媒体网格内容</li>
+                    </ul>
+                </div>
+                <div class="seo-card">
+                    <span class="seo-card-icon">🔗</span>
+                    <h3>URL 加载图片</h3>
+                    <p>支持直接输入图片链接 URL 加载图片，省去下载再上传的步骤，加载后操作与本地上传完全一致。</p>
+                    <ul>
+                        <li>支持 HTTP/HTTPS 图片链接</li>
+                        <li>也可通过页面 URL 参数自动加载</li>
+                        <li>适合在线设计资源快速裁剪</li>
+                    </ul>
+                </div>
+                <div class="seo-card">
+                    <span class="seo-card-icon">🔒</span>
+                    <h3>本地处理，隐私安全</h3>
+                    <p>所有图片处理均在浏览器本地完成，不会发送到任何服务器，彻底保护您的图片隐私。</p>
+                    <ul>
+                        <li>零服务器上传</li>
+                        <li>断网也可正常使用</li>
+                        <li>原始文件不被修改</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用方法 -->
+        <div class="seo-section">
+            <span class="seo-eyebrow">使用方法</span>
+            <h2>三步完成图片裁剪</h2>
+            <div class="two-col">
+                <div class="seo-card">
+                    <h3>自由裁剪</h3>
+                    <ol class="step-list">
+                        <li>点击左侧「自由裁剪」按钮切换模式。</li>
+                        <li>点击「上传图片」或将图片拖入画布区域。</li>
+                        <li>拖动裁剪框的边角或边线，调整裁剪区域。</li>
+                        <li>点击右侧「下载图片」导出裁剪结果。</li>
+                    </ol>
+                </div>
+                <div class="seo-card">
+                    <h3>网格裁剪</h3>
+                    <ol class="step-list">
+                        <li>点击左侧「网格裁剪」按钮切换模式。</li>
+                        <li>在「网格设置」中填写行数与列数（如 3×3）。</li>
+                        <li>上传图片后，画布自动显示等分网格线。</li>
+                        <li>点击「下载图片」批量导出所有分割子图。</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通过 URL 参数打开并裁剪 -->
+        <div class="seo-section">
+            <span class="seo-eyebrow">高级用法</span>
+            <h2>通过 URL 参数直接打开并裁剪图片</h2>
+            <p class="seo-lead">
+                本工具支持通过页面 URL 的 <strong>usource</strong> 参数传入图片地址，打开页面时会自动加载该图片，无需手动操作，方便从第三方平台、脚本或浏览器书签直接跳转进行裁剪。
+            </p>
+            <div class="two-col" style="margin-top: 1.5rem;">
+                <div>
+                    <p><strong>URL 格式</strong></p>
+                    <div class="url-param-demo">
+                        <code>https://你的域名/?<em>usource=图片URL地址</em></code>
+                    </div>
+                    <p><strong>示例</strong></p>
+                    <div class="url-param-demo">
+                        <code>https://你的域名/?<em>usource=https://example.com/photo.jpg</em></code>
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.875rem; color: #9ca3af;">
+                        打开上述链接后，工具会自动将图片加载到画布中，可直接开始裁剪操作。
+                    </p>
+                </div>
+                <div>
+                    <p><strong>使用步骤</strong></p>
+                    <ol class="step-list">
+                        <li>将目标图片的完整 URL 编码后拼接到 <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:0.85em;">?usource=</code> 参数后面。</li>
+                        <li>在浏览器中打开拼接好的链接，页面会自动加载该图片。</li>
+                        <li>选择「自由裁剪」或「网格裁剪」模式，调整裁剪区域。</li>
+                        <li>点击「下载图片」完成导出。</li>
+                    </ol>
+                    <p style="font-size: 0.875rem; color: #9ca3af; margin-top: 0.75rem;">
+                        注意：目标图片需允许跨域访问（CORS），否则浏览器安全策略可能阻止加载。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 适用场景 -->
+        <div class="seo-section">
+            <span class="seo-eyebrow">适用场景</span>
+            <h2>覆盖多种图片处理需求</h2>
+            <div class="scene-grid">
+                <div class="scene-card">
+                    <h3>社交媒体运营</h3>
+                    <p>裁剪微信公众号封面、小红书方形图、抖音封面，或用网格裁剪制作 Instagram 九宫格轮播，提升账号内容美观度。</p>
+                </div>
+                <div class="scene-card">
+                    <h3>电商与产品图</h3>
+                    <p>快速裁剪商品主图、详情页大图及 Banner 素材，去除多余背景，适配淘宝、京东、Shopify 等平台图片规格。</p>
+                </div>
+                <div class="scene-card">
+                    <h3>头像与证件照</h3>
+                    <p>裁剪社交平台头像为正方形或指定比例，也可截取标准证件照区域，适用于简历、报名等场景。</p>
+                </div>
+                <div class="scene-card">
+                    <h3>设计与创意</h3>
+                    <p>截取 UI 设计稿或原型图的局部区域用于标注与演示，或通过网格裁剪制作多图拼接、艺术分割等创意内容。</p>
+                </div>
+                <div class="scene-card">
+                    <h3>开发者与集成</h3>
+                    <p>利用 <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:0.85em;">?usource=</code> 参数从外部系统直接传入图片 URL，实现一键跳转裁剪的工作流集成。</p>
+                </div>
+                <div class="scene-card">
+                    <h3>个人日常使用</h3>
+                    <p>无需安装软件，打开浏览器即可完成图片裁剪，操作简单直观，适合所有用户日常图片处理需求。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 常见问题 -->
+        <div class="seo-section">
+            <span class="seo-eyebrow">常见问题</span>
+            <h2>FAQ</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <p class="faq-q">这个工具完全免费吗？</p>
+                    <p class="faq-a">是的，完全免费，无需注册账号，打开网页即可直接使用，没有任何功能限制。</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-q">图片会上传到服务器吗？</p>
+                    <p class="faq-a">不会。所有图片处理均在浏览器本地完成，图片数据不会发送到任何服务器，请放心使用。</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-q">支持哪些图片格式？</p>
+                    <p class="faq-a">支持 JPG/JPEG、PNG、WebP（静态帧） 等主流格式。</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-q">网格裁剪最多可以分割多少块？</p>
+                    <p class="faq-a">行数和列数各最多设置 10，即最多将图片分割为 10×10 = 100 个区块。</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-q">裁剪后的图片质量会下降吗？</p>
+                    <p class="faq-a">工具采用高质量导出方式，在保持原始分辨率的前提下进行裁剪，不会产生明显的质量损失。</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-q">通过 URL 参数加载图片失败怎么办？</p>
+                    <p class="faq-a">多数情况是因为目标图片服务器未开启跨域（CORS）访问权限。建议先将图片下载到本地，再通过上传方式加载。</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-q">手机上能用吗？</p>
+                    <p class="faq-a">支持手机和平板浏览器访问，页面已针对移动端进行适配，可在移动设备上正常使用。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关键词 -->
+        <div class="seo-keywords">
+            <p>相关关键词：在线图片裁剪 / 免费图片裁剪工具 / 图片分割 / 九宫格裁剪 / 网格裁剪 / 图片局部截取 / 头像裁剪 / 图片在线编辑 / 裁剪图片不上传 / 批量裁剪图片 / URL 加载图片 / online image cropper / free image crop tool / grid image splitter</p>
+        </div>
+
+    </section>
+
     <!-- 隐藏的文件输入框 -->
     <input type="file" id="imageInput" accept="image/*" class="hidden">
 
